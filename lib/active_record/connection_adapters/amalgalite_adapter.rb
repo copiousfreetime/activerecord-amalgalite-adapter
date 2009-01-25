@@ -66,6 +66,23 @@ module ActiveRecord
         true
       end
 
+      def native_database_types #:nodoc:
+        {
+          :primary_key => default_primary_key_type,
+          :string      => { :name => "varchar", :limit => 255 },
+          :text        => { :name => "text" },
+          :integer     => { :name => "integer" },
+          :float       => { :name => "float" },
+          :decimal     => { :name => "decimal" },
+          :datetime    => { :name => "datetime" },
+          :timestamp   => { :name => "datetime" },
+          :time        => { :name => "time" },
+          :date        => { :name => "date" },
+          :binary      => { :name => "blob" },
+          :boolean     => { :name => "boolean" }
+        }
+      end
+
       # DATABASE STATEMENTS ======================================
       def execute( sql, name = nil )
         log( sql, name) { @connection.execute( sql ) }
@@ -73,8 +90,12 @@ module ActiveRecord
 
       # SCHEMA STATEMENTS ========================================
 
+      def default_primary_key_type
+        'INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL'.freeze
+      end
+
       def tables( name = nil )
-        @connection.schema.tables.map { |t| t.name }
+        @connection.schema.tables.keys
       end
 
    end
