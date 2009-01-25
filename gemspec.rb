@@ -22,8 +22,8 @@ class ActiveRecord::ConnectionAdapters::AmalgaliteAdapter
     spec.executables  = pkg.files.bin.collect { |b| File.basename(b) }
 
     # add dependencies here
-    # spec.add_dependency("rake", ">= 0.8.1")
     spec.add_dependency("configuration", ">= 0.0.5")
+    spec.add_dependency("amalgalite", "~> 0.7.0")
     spec.add_dependency("activerecord"< "~> 2.2.2")
 
     if ext_conf = ::Configuration.for_if_exist?("extension") then
