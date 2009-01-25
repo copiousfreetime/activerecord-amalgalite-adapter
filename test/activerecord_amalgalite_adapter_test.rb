@@ -17,6 +17,7 @@ $: << ar_test_dir
 
 tests = Dir.glob("#{ar_test_dir}/cases/*_test.rb").sort
 
-tests.each { |f| load f }
+load tests.first 
+#tests.each { |f| load f }
 
 

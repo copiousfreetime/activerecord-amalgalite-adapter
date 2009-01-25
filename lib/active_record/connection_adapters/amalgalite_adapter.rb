@@ -30,7 +30,22 @@ module ActiveRecord
 
 
   module ConnectionAdapters
-    class AmalgaliteAdapter
+    class AmalgaliteAdapter < AbstractAdapter
+       class Version
+        MAJOR   = 0
+        MINOR   = 0
+        BUILD   = 1
+
+        def self.to_a() [MAJOR, MINOR, BUILD]; end
+        def self.to_s() to_a.join("."); end
+        def to_a()      Version.to_a; end
+        def to_s()       Version.to_s; end
+
+        STRING = Version.to_s
+      end
+
+      VERSION = Version.to_s
+
       def adapter_name
         "Amalgalite"
       end
@@ -51,31 +66,18 @@ module ActiveRecord
         true
       end
 
-      class Version
-        MAJOR   = 0
-        MINOR   = 0
-        BUILD   = 1
-
-        def self.to_a 
-          [MAJOR, MINOR, BUILD]
-        end
-
-        def self.to_s
-          to_a.join(".")
-        end
-
-        def to_a
-          Version.to_a
-        end
-        def to_s
-          Version.to_s
-        end
-
-        STRING = Version.to_s
+      # DATABASE STATEMENTS ======================================
+      def execute( sql, name = nil )
+        log( sql, name) { @connection.execute( sql ) }
       end
-      VERSION = Version.to_s
 
-    end
+      # SCHEMA STATEMENTS ========================================
+
+      def tables( name = nil )
+        @connection.schema.tables.map { |t| t.name }
+      end
+
+   end
   end
 
 end

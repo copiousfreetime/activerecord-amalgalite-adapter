@@ -1,1 +1,18 @@
 # Logfile created on Sat Jan 24 17:28:08 -0700 2009 by /
+  [4;36;1mSQL (3.2ms)[0m   [0;1mCREATE TABLE courses (id primary_key, name string NOT NULL) [0m
+  [4;35;1mSQL (1.4ms)[0m   [0mCREATE TABLE accounts (id primary_key, firm_id integer, credit_limit integer) [0m
+  [4;36;1mSQL (1.6ms)[0m   [0;1mCREATE TABLE audit_logs (id primary_key, message string NOT NULL, developer_id integer NOT NULL) [0m
+  [4;35;1mSQL (2.3ms)[0m   [0mCREATE TABLE authors (id primary_key, name string NOT NULL, author_address_id integer, author_address_extra_id integer) [0m
+  [4;36;1mSQL (3.5ms)[0m   [0;1mCREATE TABLE author_addresses (id primary_key) [0m
+  [4;35;1mSQL (13.3ms)[0m   [0mCREATE TABLE author_favorites (id primary_key, author_id integer, favorite_author_id integer) [0m
+  [4;36;1mSQL (2.1ms)[0m   [0;1mCREATE TABLE auto_id_tests (auto_id primary_key, value integer) [0m
+  [4;35;1mSQL (1.7ms)[0m   [0mCREATE TABLE binaries (id primary_key, data binary) [0m
+  [4;36;1mSQL (1.5ms)[0m   [0;1mCREATE TABLE books (id primary_key, name string) [0m
+  [4;35;1mSQL (1.5ms)[0m   [0mCREATE TABLE booleantests (id primary_key, value boolean) [0m
+  [4;36;1mSQL (2.3ms)[0m   [0;1mCREATE TABLE categories (id primary_key, name string NOT NULL, type string, categorizations_count integer) [0m
+  [4;35;1mSQL (1.7ms)[0m   [0mCREATE TABLE categories_posts (category_id integer NOT NULL, post_id integer NOT NULL) [0m
+  [4;36;1mSQL (1.5ms)[0m   [0;1mCREATE TABLE categorizations (id primary_key, category_id integer, post_id integer, author_id integer) [0m
+  [4;35;1mSQL (1.6ms)[0m   [0mCREATE TABLE citations (id primary_key, book1_id integer, book2_id integer) [0m
+  [4;36;1mSQL (1.7ms)[0m   [0;1mCREATE TABLE clubs (id primary_key, name string) [0m
+  [4;35;1mSQL (0.0ms)[0m   [0mAmalgalite::SQLite3::Error: Failure to prepare statement CREATE TABLE colnametests (id primary_key, references integer NOT NULL) : [SQLITE_ERROR 1] : near "references": syntax error
+: CREATE TABLE colnametests (id primary_key, references integer NOT NULL) [0m
