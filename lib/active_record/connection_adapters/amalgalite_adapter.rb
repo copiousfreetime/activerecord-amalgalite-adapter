@@ -30,6 +30,14 @@ module ActiveRecord
 
 
   module ConnectionAdapters
+    class AmalgaliteColumn < Column
+      def self.from_amalgalite( am_col )
+        new( am_col.name,
+             am_col.default_value,
+             am_col.declared_data_type,
+             am_col.nullable? )
+      end
+    end
     class AmalgaliteAdapter < AbstractAdapter
        class Version
         MAJOR   = 0
@@ -83,9 +91,28 @@ module ActiveRecord
         }
       end
 
+      # QUOTING ==================================================
+
+      # this is really escaping
+      def quote_string( s ) #:nodoc:
+        @connection.escape( s )
+      end
+
+      def quote_column_name( name ) #:nodoc:
+        @connection.quote( name )
+      end
+
       # DATABASE STATEMENTS ======================================
       def execute( sql, name = nil )
         log( sql, name) { @connection.execute( sql ) }
+      end
+
+      def select( sql, name )
+        execute( sql, name )
+      end
+
+      def select_rows( sql, name = nil )
+        execute( sql, name )
       end
 
       # SCHEMA STATEMENTS ========================================
@@ -96,6 +123,12 @@ module ActiveRecord
 
       def tables( name = nil )
         @connection.schema.tables.keys
+      end
+
+      def columns( table_name, name = nil )
+        @connection.schema.tables[table_name].columns_in_order.map do |c|
+          AmalgaliteColumn.from_amalgalite( c )
+        end
       end
 
    end
