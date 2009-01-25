@@ -125,11 +125,22 @@ module ActiveRecord
         @connection.schema.tables.keys
       end
 
+      def indexes( table_name, name = nil )
+        @connection.schema.tables[table_name].indexes.map do |key, idx|
+          index = IndexDefinition.new( table_name, idx.name )
+          index.unique = idx.unique?
+          index.columns = idx.columns.map { |col| col.name }
+          index
+        end
+      end
+
       def columns( table_name, name = nil )
         @connection.schema.tables[table_name].columns_in_order.map do |c|
           AmalgaliteColumn.from_amalgalite( c )
         end
       end
+
+
 
    end
   end
