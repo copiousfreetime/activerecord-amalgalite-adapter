@@ -108,12 +108,33 @@ module ActiveRecord
       end
 
       def select( sql, name )
-        execute( sql, name )
+        execute( sql, name ).map do |row|
+          row.to_hash
+        end
       end
 
       def select_rows( sql, name = nil )
         execute( sql, name )
       end
+
+      def update_sql( sql, name = nil )
+        super
+        @connection.row_changes
+      end
+
+      def insert_sql( sql, name = nil, pk = nil, id_value = nil, sequence_name = nil )
+        super || @connection.last_insert_rowid
+      end
+
+      def begin_db_transaction() @connection.transaction; end
+      def commit_db_transaction() @connection.commit; end
+      def rollback_db_transaction() @connection.rollback; end
+
+      # there is no select for update in sqlite
+      def add_lock!( sql, options )
+        sql
+      end
+
 
       # SCHEMA STATEMENTS ========================================
 
@@ -126,12 +147,17 @@ module ActiveRecord
       end
 
       def indexes( table_name, name = nil )
-        @connection.schema.tables[table_name].indexes.map do |key, idx|
-          index = IndexDefinition.new( table_name, idx.name )
-          index.unique = idx.unique?
-          index.columns = idx.columns.map { |col| col.name }
-          index
+        table = @connection.schema.tables[table_name]
+        indexes = []
+        if table then
+          indexes = table.indexes.map do |key, idx|
+            index = IndexDefinition.new( table_name, idx.name )
+            index.unique = idx.unique?
+            index.columns = idx.columns.map { |col| col.name }
+            index
+          end
         end
+        return indexes
       end
 
       def columns( table_name, name = nil )
@@ -140,9 +166,50 @@ module ActiveRecord
         end
       end
 
+      ##
+      # Wrap the create table so we can mark the schema as dirty
+      #
+      alias :ar_create_table :create_table
+      def create_table( table_name, options = {}, &block )
+        ar_create_table( table_name, options, &block )
+        @connection.schema.load_table( table_name )
+      end
 
+      alias :ar_change_table :change_table
+      def change_table( table_name, &block )
+        ar_change_table( table_name, &block )
+        @connection.schema.load_table( table_name )
+      end
 
-   end
+      def drop_table( table_name )
+        execute( "DROP TABLE #{@connection.quote( table_name ) }" )
+        @connection.schema.tables.delete( table_name )
+      end
+
+      alias :ar_add_column :add_column
+      def add_column(table_name, column_name, type, options = {})
+        ar_add_column( table_name, column_name, type, options )
+        @connection.schema.load_table( table_name )
+      end
+
+      alias :ar_remove_column :remove_column
+      def remove_column( table_name, *column_names )
+        ar_remove_column( table_name, *column_names )
+        @connection.schema.load_table( table_name )
+      end
+
+      alias :ar_add_index :add_index
+      def add_index( table_name, column_name, options = {} )
+        ar_add_index( table_name, column_name, options )
+        @connection.schema.load_table( table_name )
+      end
+
+      alias :ar_remove_index :remove_index
+      def remove_index( table_name, options = {} )
+        ar_remove_index( table_name, options )
+        @connection.schema.load_table( table_name )
+      end
+    end
   end
 
 end
