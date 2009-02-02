@@ -99,7 +99,7 @@ module ActiveRecord
       end
 
       def quote_column_name( name ) #:nodoc:
-        @connection.quote( name )
+        return "\"#{name}\""
       end
 
       # DATABASE STATEMENTS ======================================
