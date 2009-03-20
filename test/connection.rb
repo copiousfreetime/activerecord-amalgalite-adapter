@@ -9,8 +9,8 @@ end
 BASE_DIR = FIXTURES_ROOT
 
 this_dir = File.dirname( __FILE__ )
-amalgalite_test_db  = File.join( this_dir, "fixture_database.sqlite3" )
-amalgalite_test_db2 = File.join( this_dir, "fixture_database_2.sqlite3")
+amalgalite_test_db  = File.expand_path( File.join( this_dir, "fixture_database.sqlite3" ) )
+amalgalite_test_db2 = File.expand_path( File.join( this_dir, "fixture_database_2.sqlite3") )
 
 def make_connection(clazz, db_file)
   ActiveRecord::Base.configurations = { clazz.name => { :adapter => 'amalgalite', :database => db_file } }
@@ -23,5 +23,6 @@ def make_connection(clazz, db_file)
   clazz.establish_connection(clazz.name)
 end
 
+puts "File.exist : #{File.exist?( amalgalite_test_db )}"
 make_connection(ActiveRecord::Base, amalgalite_test_db)
 make_connection(Course, amalgalite_test_db2)
