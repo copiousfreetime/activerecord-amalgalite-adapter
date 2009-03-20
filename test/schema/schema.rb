@@ -459,7 +459,7 @@ ActiveRecord::Schema.define do
     end
   end
 
-  except 'SQLite' do
+  except 'Amalgalite' do
     # fk_test_has_fk should be before fk_test_has_pk
     create_table :fk_test_has_fk, :force => true do |t|
       t.integer :fk_id, :null => false
