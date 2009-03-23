@@ -62,17 +62,31 @@ module ActiveRecord
         end
       end
 
+      # AR asks to convert a datetime column to a time and then passes in a
+      # string... WTF ?
+      def self.datetime_to_time( dt )
+        case dt
+        when String
+          return nil if dt.empty?
+        when DateTime
+          return dt.to_time
+        when Time
+          return dt.to_time
+        end
+      end
+
       # active record assumes that type casting is from a string to a value, and
       # it might not be, mainly AR is an idiot when it comes to the driver
       # returns, as is approriate DateTime values when the declared data ttype
       # is datetime.  in that case AR wants a Time obj backi
       def type_cast_code( var_name )
         case type 
-        when :datetime   then "#{var_name}.to_time"
+        when :datetime   then "#{self.class.name}.datetime_to_time(#{var_name})"
         else
           super
         end
       end
+
     end
 
     class AmalgaliteAdapter < AbstractAdapter
@@ -199,7 +213,9 @@ module ActiveRecord
       end
 
       def columns( table_name, name = nil )
-        @connection.schema.tables[table_name].columns_in_order.map do |c|
+        t = @connection.schema.tables[table_name]
+        raise "Invalid table #{table_name}" unless t
+        t.columns_in_order.map do |c|
           AmalgaliteColumn.from_amalgalite( c )
         end
       end
@@ -219,7 +235,7 @@ module ActiveRecord
       end
 
       def primary_key( table_name )
-        pk_list = tables( table_name ).primary_key
+        pk_list = @connection.schema.tables[table_name].primary_key
         if pk_list.empty? then
           return nil
         else
@@ -245,13 +261,14 @@ module ActiveRecord
       # Wrap the create table so we can mark the schema as dirty
       #
       def create_table( table_name, options = {}, &block )
-        super
+        super( table_name, options, &block )
         @connection.schema.load_table( table_name )
       end
 
       def change_table( table_name, &block )
-        super
+        super( table_name, options, &block )
         @connection.schema.load_table( table_name )
+
       end
 
       def drop_table( table_name )
@@ -284,6 +301,7 @@ module ActiveRecord
           end
         end
       end
+
       alias :remove_columns :remove_column
       def remove_column(table_name, *column_names) #:nodoc:
         column_names.flatten.each do |column_name|
