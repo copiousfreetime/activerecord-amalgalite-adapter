@@ -23,7 +23,7 @@ class ActiveRecord::ConnectionAdapters::AmalgaliteAdapter
 
     # add dependencies here
     spec.add_dependency("configuration", ">= 0.0.5")
-    spec.add_dependency("amalgalite", "~> 0.7.2")
+    spec.add_dependency("amalgalite", "~> 0.7.8")
     spec.add_dependency("activerecord", "= 2.3.2")
 
     if ext_conf = ::Configuration.for_if_exist?("extension") then

@@ -14,7 +14,7 @@ FileUtils.rm_rf Dir.glob( "#{LOCAL_TEST_ROOT}/*.sqlite3" )
 tests = Dir.glob("#{TEST_ROOT}/cases/*_test.rb").sort
 puts "There are #{tests.size} test files in #{TEST_ROOT}/cases/"
 
-#tests[0..4].each { |f| puts f ; load f }
-tests.each { |f| load f }
+tests[0..10].each { |f| puts f ; load f }
+#tests.each { |f| puts f ; load f }
 
 

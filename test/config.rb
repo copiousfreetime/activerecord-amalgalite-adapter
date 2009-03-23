@@ -7,6 +7,7 @@
 #ar_dir = ar_spec.full_gem_path
 #AR_TEST_ROOT = File.join( ar_dir, "test" )
 AR_ROOT = File.expand_path( "~/repos/git/rails/activerecord" )
+#AR_ROOT = File.expand_path( "/opt/local/lib/ruby/gems/1.8/gems/activerecord-2.3.2" )
 
 TEST_ROOT       = AR_ROOT + "/test"
 ASSETS_ROOT     = TEST_ROOT + "/assets"

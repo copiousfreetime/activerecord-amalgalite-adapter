@@ -1,6 +1,7 @@
 print "Using native Amalgalite\n"
 require_dependency 'models/course'
 require 'logger'
+FileUtils.rm_f "debug.log"
 ActiveRecord::Base.logger = Logger.new("debug.log")
 
 class AmalgaliteError< StandardError
