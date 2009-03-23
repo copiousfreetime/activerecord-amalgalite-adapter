@@ -185,7 +185,7 @@ module ActiveRecord
         execute( sql, name )
       end
 
-      def select( sql, name )
+      def select( sql, name = nil )
         execute( sql, name ).map do |row|
           row.to_hash
         end
@@ -209,11 +209,21 @@ module ActiveRecord
       end
 
       def tables( name = nil )
+        sql = "SELECT name FROM sqlite_master WHERE type = 'table' AND NOT name = 'sqlite_sequence'" 
+        raw_list = execute( sql, nil ).map { |row| row['name'] }
+        if raw_list.sort != @connection.schema.tables.keys.sort then
+          @connection.schema.load_schema!
+          if raw_list.sort != @connection.schema.tables.keys.sort then
+            raise "raw_list - tables : #{raw_list - @connection.schema.tables.keys} :: tables - raw_list #{@connection.schema.tables.keys - raw_list}"
+          end
+        end
+        ActiveRecord::Base.logger.info "schema_migrations    in tables? : #{raw_list.include?( "schema_migrations" )}"
+        ActiveRecord::Base.logger.info "schema_migrations(2) in tables? : #{@connection.schema.tables.keys.include?( "schema_migrations" )}"
         @connection.schema.tables.keys
       end
 
       def columns( table_name, name = nil )
-        t = @connection.schema.tables[table_name]
+        t = @connection.schema.tables[table_name.to_s]
         raise "Invalid table #{table_name}" unless t
         t.columns_in_order.map do |c|
           AmalgaliteColumn.from_amalgalite( c )
@@ -221,7 +231,7 @@ module ActiveRecord
       end
 
       def indexes( table_name, name = nil )
-        table = @connection.schema.tables[table_name]
+        table = @connection.schema.tables[table_name.to_s]
         indexes = []
         if table then
           indexes = table.indexes.map do |key, idx|
@@ -235,7 +245,7 @@ module ActiveRecord
       end
 
       def primary_key( table_name )
-        pk_list = @connection.schema.tables[table_name].primary_key
+        pk_list = @connection.schema.tables[table_name.to_s].primary_key
         if pk_list.empty? then
           return nil
         else
@@ -244,7 +254,8 @@ module ActiveRecord
       end
 
       def remove_index( table_name, options = {} )
-        execute "DROP INDEX #{quote_column_name(index_name( table_name, options ) ) }"
+        execute "DROP INDEX #{quote_column_name(index_name( table_name.to_s, options ) ) }"
+        @connection.schema.dirty!
       end
 
       def rename_table( name, new_name )
@@ -262,18 +273,19 @@ module ActiveRecord
       #
       def create_table( table_name, options = {}, &block )
         super( table_name, options, &block )
-        @connection.schema.load_table( table_name )
+        @connection.schema.load_table( table_name.to_s )
       end
 
       def change_table( table_name, &block )
-        super( table_name, options, &block )
-        @connection.schema.load_table( table_name )
+        super( table_name, &block )
+        @connection.schema.load_table( table_name.to_s )
 
       end
 
-      def drop_table( table_name )
-        execute( "DROP TABLE #{@connection.quote( table_name ) }" )
-        @connection.schema.tables.delete( table_name )
+      def drop_table( table_name, options = {} )
+        super( table_name, options )
+        @connection.schema.tables.delete( table_name.to_s )
+        puts "dropped table #{table_name} : #{@connection.schema.tables.include?( table_name )}" if table_name == "delete_me"
       end
 
       def add_column(table_name, column_name, type, options = {})
@@ -281,32 +293,24 @@ module ActiveRecord
         if valid_alter_table_options( type, options ) then
           rc = super( table_name, column_name, type, options )
         else
-          rc = alter_able( table_name ) do |definition|
+          table_name = table_name.to_s
+          rc = alter_table( table_name ) do |definition|
             definition.column( column_name, type, options )
           end
         end
-        @connection.schema.load_table( table_name )
+        @connection.schema.load_table( table_name.to_s )
         return rc
       end
 
-      def add_index( table_name, column_name, options )
+      def add_index( table_name, column_name, options = {} )
         super
-        @connection.schema.load_table( table_name )
+        @connection.schema.load_table( table_name.to_s )
       end
 
       def remove_column( table_name, *column_names )
         column_names.flatten.each do |column_name|
           alter_table( table_name ) do |definition|
             definition.columns.delete( definition[column_name] )
-          end
-        end
-      end
-
-      alias :remove_columns :remove_column
-      def remove_column(table_name, *column_names) #:nodoc:
-        column_names.flatten.each do |column_name|
-          alter_table(table_name) do |definition|
-            definition.columns.delete(definition[column_name])
           end
         end
       end
@@ -371,7 +375,8 @@ module ActiveRecord
       end
 
       def copy_table(from, to, options = {}) #:nodoc:
-        options = options.merge(:id => (!columns(from).detect{|c| c.name == 'id'}.nil? && 'id' == primary_key(from).to_s))
+        options = options.merge( :id => (!columns(from).detect{|c| c.name == 'id'}.nil? && 'id' == primary_key(from).to_s))
+        options = options.merge( :primary_key => primary_key(from).to_s )
         create_table(to, options) do |definition|
           @definition = definition
           columns(from).each do |column|
