@@ -76,9 +76,8 @@ module ActiveRecord
       end
 
       # active record assumes that type casting is from a string to a value, and
-      # it might not be, mainly AR is an idiot when it comes to the driver
-      # returns, as is approriate DateTime values when the declared data ttype
-      # is datetime.  in that case AR wants a Time obj backi
+      # it might not be.  It might be something appropriate for the field in
+      # question, like say a DateTime for a :datetime field?.  
       def type_cast_code( var_name )
         case type 
         when :datetime   then "#{self.class.name}.datetime_to_time(#{var_name})"
@@ -92,8 +91,8 @@ module ActiveRecord
     class AmalgaliteAdapter < AbstractAdapter
       class Version
         MAJOR   = 0
-        MINOR   = 0
-        BUILD   = 1
+        MINOR   = 8
+        BUILD   = 0
 
         def self.to_a() [MAJOR, MINOR, BUILD]; end
         def self.to_s() to_a.join("."); end
@@ -194,7 +193,7 @@ module ActiveRecord
 
       def begin_db_transaction() @connection.transaction; end
       def commit_db_transaction() @connection.commit; end
-      def rollback_db_transaction() @connection.rollback; @connection.schema.dirty!; end
+      def rollback_db_transaction() @connection.rollback; end 
 
       # there is no select for update in sqlite
       def add_lock!( sql, options )
