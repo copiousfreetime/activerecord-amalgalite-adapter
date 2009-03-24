@@ -3,4 +3,8 @@
 *.swo
 *.log
 *.sqlite
+*.bak
 test/*.sqlite3
+pkg/
+coverage/
+log/

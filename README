@@ -1,21 +1,51 @@
-== activerecord-amalgalite-adapter
+== ActiveRecord Amalgalite Adapter 
 
-* Homepage
-* rubyforge project
-* email
+* Homepage[http://copiousfreetime.rubyforge.org/activerecord-amalgalite-adapter
+* {Rubyforge Project}[http://rubyforge.org/projects/copiousfreetime/]
+* email jeremy at copiousfreetime dot org 
+* git clone url git://github.com/copiousfreetime/activerecord-amalgalite-adapter
 
 == DESCRIPTION
 
-== FEATURES
+This is that ActiveRecord adapter for the Amalgalite Database gem.  The
+Amalgalite gem embeds the SQLite database inside a ruby extensions.
+
+== INSTALL
+
+* gem install activerecord-amalgalite-adapter
 
 == SYNOPSIS
 
-== CREDITS
+You will need to have the 'activerecord-amalgalite-adapter' gem installed.
+
+After that you can use the the 'amalgalite' adapter in your config/database.yml
+
+For example config/database.yml:
+
+  development:
+     adapter: amalgalite
+     database: db/production.db
+
+  test:
+    adapter: amalgalite
+    database: db/test.db
+
+  development:
+     adapter: amalgalite
+     database: db/development.db
 
 == LICENSE
 
-Copyright (c)  Jeremy Hinegadner
+Copyright (c) 2009, Jeremy Hinegardner
 
-All rights reserved.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
 
-See LICENSE and/or COPYING for details.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
+FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
