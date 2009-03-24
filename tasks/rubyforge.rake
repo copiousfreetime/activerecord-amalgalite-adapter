@@ -1,4 +1,5 @@
 require 'tasks/config'    
+require 'activerecord'
 
 #-----------------------------------------------------------------------
 # Rubyforge additions to the task library
@@ -17,24 +18,24 @@ if rf_conf = Configuration.for_if_exist?("rubyforge") then
 
       config = {}
       config["release_notes"]     = proj_conf.description
-      config["release_changes"]   = Utils.release_notes_from(proj_conf.history)[ActiveRecord::ConectionAdapters::AmalgaliteAdapter::VERSION]
+      config["release_changes"]   = Utils.release_notes_from(proj_conf.history)[ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::VERSION]
       config["Prefomatted"]       = true
 
       rubyforge.configure
 
       # make sure this release doesn't already exist
       releases = rubyforge.autoconfig['release_ids']
-      if releases.has_key?(ActiveRecord::ConectionAdapters::AmalgaliteAdapter::GEM_SPEC.name) and 
-         releases[ActiveRecord::ConectionAdapters::AmalgaliteAdapter::GEM_SPEC.name][ActiveRecord::ConectionAdapters::AmalgaliteAdapter::VERSION] then
-        abort("Release #{ActiveRecord::ConectionAdapters::AmalgaliteAdapter::VERSION} already exists! Unable to release.")
+      if releases.has_key?(ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::GEM_SPEC.name) and 
+         releases[ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::GEM_SPEC.name][ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::VERSION] then
+        abort("Release #{ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::VERSION} already exists! Unable to release.")
       end
 
       puts "Uploading to rubyforge..."
-      files = FileList[File.join("pkg","#{ActiveRecord::ConectionAdapters::AmalgaliteAdapter::GEM_SPEC.name}-#{ActiveRecord::ConectionAdapters::AmalgaliteAdapter::VERSION}*.*")].to_a
+      files = FileList[File.join("pkg","#{ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::GEM_SPEC.name}-#{ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::VERSION}*.*")].to_a
       rubyforge.login
-      rubyforge.add_release(ActiveRecord::ConectionAdapters::AmalgaliteAdapter::GEM_SPEC.rubyforge_project, 
-                            ActiveRecord::ConectionAdapters::AmalgaliteAdapter::GEM_SPEC.name, 
-                            ActiveRecord::ConectionAdapters::AmalgaliteAdapter::VERSION, *files)
+      rubyforge.add_release(ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::GEM_SPEC.rubyforge_project, 
+                            ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::GEM_SPEC.name, 
+                            ActiveRecord::ConnectionAdapters::AmalgaliteAdapter::VERSION, *files)
       puts "done."
     end
   end

@@ -8,3 +8,4 @@ test/*.sqlite3
 pkg/
 coverage/
 log/
+doc/
