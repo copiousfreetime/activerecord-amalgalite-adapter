@@ -114,7 +114,7 @@ module ActiveRecord
       end
 
       def supports_migrations?
-        false
+        true
       end
 
       def requires_reloading?
@@ -194,7 +194,7 @@ module ActiveRecord
 
       def begin_db_transaction() @connection.transaction; end
       def commit_db_transaction() @connection.commit; end
-      def rollback_db_transaction() @connection.rollback; end
+      def rollback_db_transaction() @connection.rollback; @connection.schema.dirty!; end
 
       # there is no select for update in sqlite
       def add_lock!( sql, options )
@@ -260,6 +260,7 @@ module ActiveRecord
 
       def rename_table( name, new_name )
         execute "ALTER TABLE #{name} RENAME TO #{new_name}"
+        @connection.schema.dirty!
       end
 
       # See: http://www.sqlite.org/lang_altertable.html
