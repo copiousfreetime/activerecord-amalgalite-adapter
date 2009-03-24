@@ -114,7 +114,7 @@ module ActiveRecord
       end
 
       def supports_migrations?
-        true
+        false
       end
 
       def requires_reloading?
